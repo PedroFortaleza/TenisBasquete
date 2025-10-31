@@ -3,8 +3,6 @@ package org.acme.service;
 import org.acme.dto.MarcaDTO;
 import org.acme.model.Marca;
 import org.acme.repository.MarcaRepository;
-
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

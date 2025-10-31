@@ -8,16 +8,8 @@ import java.util.List;
 @ApplicationScoped
 public class ModeloRepository implements PanacheRepository<Modelo> {
     
-    public List<Modelo> findByMarca(String marca) {
-        return find("marca", marca).list();
-    }
-    
-    public List<Modelo> findByTamanho(String tamanho) {
-        return find("tamanho", tamanho).list();
-    }
-    
-    public List<Modelo> findEmEstoque() {
-        return find("emEstoque", true).list();
+    public List<Modelo> findByMarca(Long marcaId) {
+        return find("marca.id", marcaId).list();
     }
     
     public List<Modelo> findByNome(String nome) {

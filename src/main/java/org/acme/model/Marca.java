@@ -29,8 +29,9 @@ public class Marca extends PanacheEntity {
     
     private Boolean ativa;
     
-    @OneToMany(mappedBy = "marca")
-    private List<Modelo> modelos;
+    // REMOVER esta relação ou corrigir
+    // @OneToMany(mappedBy = "marca")
+    // private List<Modelo> modelos;
 
     
     public Marca() {
@@ -102,6 +103,8 @@ public class Marca extends PanacheEntity {
         this.ativa = ativa;
     }
 
+    // REMOVER ou comentar os getters/setters da relação
+    /*
     public List<Modelo> getModelos() {
         return modelos;
     }
@@ -109,4 +112,5 @@ public class Marca extends PanacheEntity {
     public void setModelos(List<Modelo> modelos) {
         this.modelos = modelos;
     }
+    */
 }
