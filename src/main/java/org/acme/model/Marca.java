@@ -103,14 +103,5 @@ public class Marca extends PanacheEntity {
         this.ativa = ativa;
     }
 
-    // REMOVER ou comentar os getters/setters da relação
-    /*
-    public List<Modelo> getModelos() {
-        return modelos;
-    }
-
-    public void setModelos(List<Modelo> modelos) {
-        this.modelos = modelos;
-    }
-    */
+   
 }

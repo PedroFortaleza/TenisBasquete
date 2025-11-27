@@ -10,8 +10,11 @@ public class CriarTenisDTO {
     private String genero;
     private String material;
     private List<String> tamanhos;
+    private String imagemUrl;
     private Long corId;
     private Long esporteId;
+    private Long marcaId;    // NOVO CAMPO
+    private Long modeloId;   // NOVO CAMPO
 
     // Getters e Setters
     public String getNome() { return nome; }
@@ -32,9 +35,18 @@ public class CriarTenisDTO {
     public List<String> getTamanhos() { return tamanhos; }
     public void setTamanhos(List<String> tamanhos) { this.tamanhos = tamanhos; }
 
+    public String getImagemUrl() { return imagemUrl; }
+    public void setImagemUrl(String imagemUrl) { this.imagemUrl = imagemUrl; }
+
     public Long getCorId() { return corId; }
     public void setCorId(Long corId) { this.corId = corId; }
 
     public Long getEsporteId() { return esporteId; }
     public void setEsporteId(Long esporteId) { this.esporteId = esporteId; }
+
+    public Long getMarcaId() { return marcaId; }
+    public void setMarcaId(Long marcaId) { this.marcaId = marcaId; }
+
+    public Long getModeloId() { return modeloId; }
+    public void setModeloId(Long modeloId) { this.modeloId = modeloId; }
 }

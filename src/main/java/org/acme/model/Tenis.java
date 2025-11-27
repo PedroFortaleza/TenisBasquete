@@ -32,6 +32,10 @@ public class Tenis extends PanacheEntity {
     @Column(nullable = false)
     private Boolean ativo = true;
 
+    @Column(name = "imagem_url", length = 500)
+    private String imagemUrl;
+
+    // RELAÇÕES CORRETAS - VERIFIQUE SE OS NOMES DAS COLUNAS ESTÃO CORRETOS NO BANCO
     @ManyToOne
     @JoinColumn(name = "cor_id", nullable = false)
     private Cor cor;
@@ -40,12 +44,21 @@ public class Tenis extends PanacheEntity {
     @JoinColumn(name = "esporte_id", nullable = false)
     private Esporte esporte;
 
+    @ManyToOne
+    @JoinColumn(name = "marca_id", nullable = false)
+    private Marca marca;
+
+    @ManyToOne
+    @JoinColumn(name = "modelo_id", nullable = false)
+    private Modelo modelo;
+
     public Tenis() {
         this.ativo = true;
     }
     
     public Tenis(String nome, String descricao, BigDecimal preco, String genero, 
-                String material, List<String> tamanhos, Cor cor, Esporte esporte) {
+                String material, List<String> tamanhos, String imagemUrl, 
+                Cor cor, Esporte esporte, Marca marca, Modelo modelo) {
         this();
         this.nome = nome;
         this.descricao = descricao;
@@ -53,8 +66,11 @@ public class Tenis extends PanacheEntity {
         this.genero = genero;
         this.material = material;
         this.tamanhos = tamanhos;
+        this.imagemUrl = imagemUrl;
         this.cor = cor;
         this.esporte = esporte;
+        this.marca = marca;
+        this.modelo = modelo;
     }
     
     // Getters e Setters
@@ -82,9 +98,18 @@ public class Tenis extends PanacheEntity {
     public Boolean getAtivo() { return ativo; }
     public void setAtivo(Boolean ativo) { this.ativo = ativo; }
 
+    public String getImagemUrl() { return imagemUrl; }
+    public void setImagemUrl(String imagemUrl) { this.imagemUrl = imagemUrl; }
+
     public Cor getCor() { return cor; }
     public void setCor(Cor cor) { this.cor = cor; }
 
     public Esporte getEsporte() { return esporte; }
     public void setEsporte(Esporte esporte) { this.esporte = esporte; }
+
+    public Marca getMarca() { return marca; }
+    public void setMarca(Marca marca) { this.marca = marca; }
+
+    public Modelo getModelo() { return modelo; }
+    public void setModelo(Modelo modelo) { this.modelo = modelo; }
 }

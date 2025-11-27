@@ -93,6 +93,18 @@ public class MarcaService {
         return false;
     }
     
+    @Transactional
+    public boolean ativar(Long id) {
+        Optional<Marca> marcaOpt = marcaRepository.findByIdOptional(id);
+        if (marcaOpt.isPresent()) {
+            Marca marca = marcaOpt.get();
+            marca.setAtiva(true);
+            marcaRepository.persist(marca);
+            return true;
+        }
+        return false;
+    }
+    
     public List<MarcaDTO> findByPais(String pais) {
         return marcaRepository.findByPais(pais).stream()
                 .map(this::toDTO)
@@ -103,6 +115,79 @@ public class MarcaService {
         return marcaRepository.findByNomeContaining(nome).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
+    }
+    
+    // MÉTODO ADICIONADO PARA O CADASTRO DE TÊNIS
+    public Marca buscarMarcaEntity(Long id) {
+        try {
+            System.out.println("Buscando entidade Marca por ID: " + id);
+            Marca marca = marcaRepository.findById(id);
+            if (marca == null) {
+                throw new RuntimeException("Marca não encontrada com ID: " + id);
+            }
+            if (Boolean.FALSE.equals(marca.getAtiva())) {
+                throw new RuntimeException("Marca com ID " + id + " está inativa");
+            }
+            return marca;
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar entidade marca: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    // MÉTODO ADICIONADO PARA CRIAR MARCA SIMPLES
+    @Transactional
+    public MarcaDTO criarMarcaSimples(String nome) {
+        try {
+            System.out.println("Criando marca simples: " + nome);
+            
+            if (nome == null || nome.trim().isEmpty()) {
+                throw new RuntimeException("Nome da marca é obrigatório");
+            }
+            
+            // Verificar se já existe
+            if (marcaRepository.existsByNome(nome)) {
+                throw new RuntimeException("Marca com nome '" + nome + "' já existe");
+            }
+            
+            Marca marca = new Marca();
+            marca.setNome(nome);
+            marca.setPaisOrigem("Brasil"); // Valor padrão
+            marca.setAtiva(true);
+            
+            marcaRepository.persist(marca);
+            System.out.println("Marca simples criada com ID: " + marca.getId());
+            
+            return toDTO(marca);
+        } catch (Exception e) {
+            System.err.println("Erro ao criar marca simples: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    // MÉTODO ADICIONADO PARA VERIFICAR EXISTÊNCIA
+    public boolean existsById(Long id) {
+        return marcaRepository.findByIdOptional(id).isPresent();
+    }
+    
+    // MÉTODO ADICIONADO PARA ESTATÍSTICAS
+    public EstatisticasMarca getEstatisticas() {
+        try {
+            long total = marcaRepository.count();
+            long ativas = marcaRepository.find("ativa = true").count();
+            long inativas = total - ativas;
+            
+            EstatisticasMarca estatisticas = new EstatisticasMarca(total, ativas, inativas);
+            System.out.println("Estatísticas de marcas: " + estatisticas);
+            
+            return estatisticas;
+        } catch (Exception e) {
+            System.err.println("Erro ao obter estatísticas: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     // Métodos de conversão
@@ -129,5 +214,22 @@ public class MarcaService {
         marca.setLogoUrl(dto.getLogoUrl());
         marca.setAtiva(dto.getAtiva() != null ? dto.getAtiva() : true);
         return marca;
+    }
+    
+    public static class EstatisticasMarca {
+        public Long total;
+        public Long ativas;
+        public Long inativas;
+        
+        public EstatisticasMarca(Long total, Long ativas, Long inativas) {
+            this.total = total;
+            this.ativas = ativas;
+            this.inativas = inativas;
+        }
+        
+        @Override
+        public String toString() {
+            return String.format("Total: %d, Ativas: %d, Inativas: %d", total, ativas, inativas);
+        }
     }
 }

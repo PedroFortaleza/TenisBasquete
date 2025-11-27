@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -20,6 +21,9 @@ public class ModeloService {
     @Inject
     MarcaRepository marcaRepository;
     
+    @Inject
+    MarcaService marcaService;
+    
     public List<ModeloDTO> listAll() {
         try {
             System.out.println("Listando todos os modelos...");
@@ -30,6 +34,24 @@ public class ModeloService {
             return modelos;
         } catch (Exception e) {
             System.err.println("Erro ao listar modelos: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    public List<ModeloDTO> listAtivos() {
+        try {
+            System.out.println("Listando modelos ativos...");
+            // Buscar todos e filtrar por marca ativa
+            List<ModeloDTO> modelos = modeloRepository.listAll().stream()
+                    .filter(modelo -> modelo.getMarca() != null && 
+                                     Boolean.TRUE.equals(modelo.getMarca().getAtiva()))
+                    .map(this::toDTO)
+                    .collect(Collectors.toList());
+            System.out.println("Total de modelos ativos encontrados: " + modelos.size());
+            return modelos;
+        } catch (Exception e) {
+            System.err.println("Erro ao listar modelos ativos: " + e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -175,6 +197,96 @@ public class ModeloService {
         }
     }
     
+    // MÉTODO ADICIONADO PARA O CADASTRO DE TÊNIS
+    public Modelo buscarModeloEntity(Long id) {
+        try {
+            System.out.println("Buscando entidade Modelo por ID: " + id);
+            Modelo modelo = modeloRepository.findById(id);
+            if (modelo == null) {
+                throw new RuntimeException("Modelo não encontrado com ID: " + id);
+            }
+            // Verificar se a marca está ativa
+            if (modelo.getMarca() != null && Boolean.FALSE.equals(modelo.getMarca().getAtiva())) {
+                throw new RuntimeException("Modelo com ID " + id + " pertence a uma marca inativa");
+            }
+            return modelo;
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar entidade modelo: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    // MÉTODO ADICIONADO PARA CRIAR MODELO COM MARCA
+    @Transactional
+    public ModeloDTO criarModeloComMarca(String nomeModelo, Long marcaId) {
+        try {
+            System.out.println("Criando modelo '" + nomeModelo + "' para marca ID: " + marcaId);
+            
+            if (nomeModelo == null || nomeModelo.trim().isEmpty()) {
+                throw new RuntimeException("Nome do modelo é obrigatório");
+            }
+            
+            // Buscar marca
+            Marca marca = marcaService.buscarMarcaEntity(marcaId);
+            
+            // Verificar se já existe modelo com mesmo nome
+            if (modeloRepository.findByNome(nomeModelo).size() > 0) {
+                throw new RuntimeException("Já existe um modelo com o nome: " + nomeModelo);
+            }
+            
+            Modelo modelo = new Modelo();
+            modelo.setNome(nomeModelo);
+            modelo.setMarca(marca);
+            
+            modeloRepository.persist(modelo);
+            System.out.println("Modelo criado com ID: " + modelo.getId());
+            
+            return toDTO(modelo);
+        } catch (Exception e) {
+            System.err.println("Erro ao criar modelo com marca: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    // MÉTODO ADICIONADO PARA VERIFICAR EXISTÊNCIA
+    public boolean existsById(Long id) {
+        return modeloRepository.findById(id) != null;
+    }
+    
+    // MÉTODO ADICIONADO PARA BUSCAR OU CRIAR MODELO
+    @Transactional
+    public Modelo buscarOuCriarModelo(String nomeModelo, Long marcaId) {
+        try {
+            System.out.println("Buscando ou criando modelo: " + nomeModelo + " para marca: " + marcaId);
+            
+            // Primeiro tenta buscar por nome
+            List<Modelo> modelosExistentes = modeloRepository.findByNome(nomeModelo);
+            if (!modelosExistentes.isEmpty()) {
+                Modelo modeloExistente = modelosExistentes.get(0);
+                System.out.println("Modelo já existe: " + modeloExistente.getId());
+                return modeloExistente;
+            }
+            
+            // Se não existe, cria novo
+            Marca marca = marcaService.buscarMarcaEntity(marcaId);
+            
+            Modelo novoModelo = new Modelo();
+            novoModelo.setNome(nomeModelo);
+            novoModelo.setMarca(marca);
+            
+            modeloRepository.persist(novoModelo);
+            System.out.println("Novo modelo criado: " + novoModelo.getId());
+            
+            return novoModelo;
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar ou criar modelo: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
     private ModeloDTO toDTO(Modelo modelo) {
         ModeloDTO dto = new ModeloDTO();
         dto.setId(modelo.getId());
@@ -202,21 +314,6 @@ public class ModeloService {
         }
         
         return modelo;
-    }
-    
-    public Modelo buscarModeloEntity(Long id) {
-        try {
-            System.out.println("Buscando entidade Modelo por ID: " + id);
-            Modelo modelo = modeloRepository.findById(id);
-            if (modelo == null) {
-                throw new RuntimeException("Modelo não encontrado com ID: " + id);
-            }
-            return modelo;
-        } catch (Exception e) {
-            System.err.println("Erro ao buscar entidade modelo: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
     }
     
     // Método para criar modelo sem marca (mais simples)
