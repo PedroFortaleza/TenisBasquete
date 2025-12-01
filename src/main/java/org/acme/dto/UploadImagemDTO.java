@@ -1,8 +1,21 @@
 package org.acme.dto;
 
+import org.jboss.resteasy.annotations.providers.multipart.PartType;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.core.MediaType;
+
 public class UploadImagemDTO {
+    
+    @FormParam("fileName")
+    @PartType(MediaType.TEXT_PLAIN)
     private String fileName;
+    
+    @FormParam("contentType")
+    @PartType(MediaType.TEXT_PLAIN)
     private String contentType;
+    
+    @FormParam("fileData")
+    @PartType(MediaType.APPLICATION_OCTET_STREAM)
     private byte[] fileData;
 
     // Construtores
